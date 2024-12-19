@@ -4,19 +4,19 @@
     $addSuffix = $null
 
     switch ($char) {
-        {$_ -eq "a" -or $_ -eq "ı"} {
+        {$_.ToLower() -eq "a" -or $_ -eq "ı"} {
             $addSuffix = "ı"
             break;
         }
-        {$_ -eq "e" -or $_ -eq "i"} {
+        {$_.ToLower() -eq "e" -or $_ -eq "i"} {
             $addSuffix = "i"
             break;
         }
-        {$_ -eq "o" -or $_ -eq "u"} {
+        {$_.ToLower() -eq "o" -or $_ -eq "u"} {
             $addSuffix = "u"
             break;
         }
-        {$_ -eq "ö" -or $_ -eq "ü"} {
+        {$_.ToLower() -eq "ö" -or $_ -eq "ü"} {
             $addSuffix = "ü"
             break;
         }
@@ -33,7 +33,7 @@ Function GetVocalHarmonyAE {
     $eGroup = @("e", "i", "ö", "ü")
     $aGroup = @("a", "ı", "o", "u")
 
-    if ($eGroup.Contains($char.ToString())) {
+    if ($eGroup.Contains($char.ToString().ToLower())) {
         return "e"
     } else {
         return "a"
@@ -48,7 +48,7 @@ Function GetVocalHarmonyI {
     $eGroup = @("e", "i", "ö", "ü")
     $aGroup = @("a", "ı", "o", "u")
 
-    if ($eGroup.Contains($char.ToString())) {
+    if ($eGroup.Contains($char.ToString().ToLower())) {
         return "i"
     } else {
         return "ı"
@@ -76,6 +76,7 @@ Function VerbFunction {
         [string]$MainF,
         [string]$MinF,
         [string]$PresentF,
+        [string]$FutureF,
         [string]$AoristS,
         [string]$Symbol = "ALX",
         [string]$Case = "A" # Accusative - A (I), Ablative B (DAN), Locative - L (DA), Instrumental - I (LA), Dative - D (A)
@@ -92,7 +93,7 @@ Function VerbFunction {
     $no = 0
     # MAIN FORM
     $m = "$($MainF)m$($mainFVH2)k"
-    Write-Host "V-$($Symbol)-$($no),$m,$m,Infinitive,Main,$MainF,,mak,,,,,,,,$Case"
+    Write-Host "V-$($Symbol)-$($no),$m,$m,Infinitive,Main,$MainF,,$m,,,,,,,,$Case"
 
     # PRESENT CONTINOUS
     $prCon = "$($PresentF)yor"
@@ -157,16 +158,19 @@ Function VerbFunction {
             $q = "m$($sVH)"
             $suffix = "$($suffix) m$($sVH)"
         } else {
+            $s
             $suffix = $($s.Replace("x", $pcConVH))
             $eSuffix = $suffix
             $suffix = " m$($pcConVH)$($suffix)"
             $q = "m$($pcConVH)"
         }
 
+        <#
         $suffix = $null
         $eSuffix = $null
         $plural = $null
         $q = $null
+        #>
 
         Write-Host "V-$($Symbol)-$($no),$($prCon)$($suffix),$m,Present Continuous,Main Question,$MinF,,$($PresentF.Substring($PresentF.Length-1, 1))yor,,$plural,$q,,,$eSuffix,,$Case"
 
@@ -242,7 +246,9 @@ Function VerbFunction {
 
         if ($s -eq "lxr") {
             $suffix = $s.Replace("x", $pcConVH2)
-        } 
+        } else {
+            $suffix = $s.Replace("x", $pcConVH)
+        }
 
         $eSuffix = $suffix
         $suffix = "d$($pcConVH)$suffix"
@@ -630,7 +636,7 @@ Function VerbFunction {
             $q = "m$($mainFVH3)"
         }
 
-        Write-Host "V-$($Symbol)-$($no),$($npConN)$($suffix),$m,Not Defined Past Continuous,Negative Question,$MainF,m$($mainFVH2),,m$($mainFVH)ş,,$plural,$q,$j,,$eSuffix,,$Case"
+        Write-Host "V-$($Symbol)-$($no),$($npConN)$($suffix),$m,Not Defined Past Continuous,Main Question,$MainF,m$($mainFVH2),,m$($mainFVH)ş,,$plural,$q,$j,,$eSuffix,,$Case"
 
         $no++
     }
@@ -638,9 +644,11 @@ Function VerbFunction {
     $no = 600
 
     # FUTURE SIMPLE
-    $ftSim = "$($MainF)"
+    $ftSim = "$($FutureF)"
     $fMainLL = GetLastLetter $MainF
     $fMainIV = IsVowel $fMainLL
+    Write-Host "Last letter: $fMainLL"
+    Write-Host "IsVowel: $fMainIV"
     $ftSimN = "$($MainF)m$($mainFVH2)y$($mainFVH2)c$($mainFVH2)k"
     $y = $null
     if ($fMainIV) {$ftSim = "$($ftSim)y"}
@@ -752,8 +760,6 @@ Function VerbFunction {
         $no++
     }
 
-
-
     # OPTATIVE MODE
     $opMode = "$($MainF)"
     #$fMainLL = GetLastLetter $MainF
@@ -763,73 +769,7 @@ Function VerbFunction {
     
     $opMode
     $opModeN
-    
-    $opModeSuffixes = @("yxm", "sxn", "", "yxm", "sxnxz", "lar")
-
-    # Optative Mode - Main
-    foreach ($s in $npConSuffixes) {
-
-        $suffix = $null
-        
-        if ($s -eq "lxr") {
-            $suffix = $s.Replace("x", $npConVH2)
-        } else {
-            $suffix = $s.Replace("x", $npConVH)
-        }
-
-        Write-Host "-----------"
-        Write-Host "$($npCon)$($suffix)"
-    }
-
-    # Not Defined Past Continuous - Negative
-    $prConN  = "$($MainF)m$($mainFVH)yor"
-
-    foreach ($s in $npConSuffixes) {
-
-        $suffix = $null
-
-        if ($s -eq "lxr") {
-            $suffix = $s.Replace("x", $npConVH2)
-        } else {
-            $suffix = $s.Replace("x", $npConVH)
-        }
-
-        Write-Host "$($npConN)$($suffix)"
-    }
-
-    # Not Defined Past Continuous - Main Question
-    foreach ($s in $npConSuffixesQ) {
-
-        $suffix = $null
-
-        if ($s -eq "lxr") {
-            $suffix = $s.Replace("x", $npConVH2)
-            $sLV = GetLastVowel $suffix
-            $sVH = GetVocalHarmonyMain $sLV
-            $suffix = "$($suffix) m$($sVH)"
-        } else {
-            $suffix = " $($s.Replace("x", $npConVH))"
-        }
-
-        Write-Host "$($npCon)$suffix"
-    }
-
-    # Not Defined Past Continuous - Negative Question
-    foreach ($s in $npConSuffixesQ) {
-
-        $suffix = $null
-
-        if ($s -eq "lxr") {
-            $suffix = $s.Replace("x", $npConVH2)
-            $sLV = GetLastVowel $suffix
-            $sVH = GetVocalHarmonyMain $sLV
-            $suffix = "$($suffix) m$($sVH)"
-        } else {
-            $suffix = " $($s.Replace("x", $npConVH))"
-        }
-
-        Write-Host "$($npConN)$suffix"
-    }
+  
 
 
     # 
@@ -848,7 +788,62 @@ imperative		anla	anlasın		anlayın	anlasınlar
     # NECESSITATIVE MODE
     
     $ncMode = "$($MainF)m$($mainFVH2)l$($mainFVH3)"
-    $ncMode
+    $ncModeN = "$($MainF)m$($mainFVH2)m$($mainFVH2)l$($mainFVH3)"
+
+    # Necessitative mood - Main
+    foreach ($s in $mainSuffixesQ) {
+
+        if ($s -eq "lxr") {
+            $suffix = $s.Replace("x", $mainFVH2)
+        } else {
+            $suffix = $($s.Replace("x", $npConVH))
+        }
+
+        Write-Host "V-$($Symbol)-$($no),$($ncMode)$suffix,$m,Necessitative mood,Main,$MainF,,,m$($mainFVH2)l$($mainFVH3),,,,,$suffix,,$Case"
+        #Id, Form, BasicForm, TenseName, TenseForm, root, negative, root_join, tense1, tense2, question_plural, question, question_join, question_tense, decl, question_past, case
+    }
+
+    # Necessitative mood - Negative
+    foreach ($s in $mainSuffixesQ) {
+
+        $n = "m$mainFVH2"
+
+        if ($s -eq "lxr") {
+            $suffix = $s.Replace("x", $mainFVH2)
+        } else {
+            $suffix = $($s.Replace("x", $npConVH))
+        }
+
+        Write-Host "V-$($Symbol)-$($no),$($ncModeN)$suffix,$m,Necessitative mood,Main,$MainF,$n,,m$($mainFVH2)l$($mainFVH3),,,,,$suffix,,$Case"
+        #Id, Form, BasicForm, TenseName, TenseForm, root, negative, root_join, tense1, tense2, question_plural, question, question_join, question_tense, decl, question_past, case
+    }
+
+    # Necessitative mood - Main Questions
+    foreach ($s in $mainSuffixesQ) {
+
+        $ftSimF = $ftSim
+        $suffix = $null
+        $eSuffix = $null
+        $plural = $null
+        $q = $null
+        $j = $null
+
+        if ($s -eq "lxr") {
+            $suffix = $s.Replace("x", $aoVH2)
+            $plural = $suffix
+            $q = "m$($mainFVH3)"
+            $suffix = "$($suffix) m$($mainFVH3)"
+        } else {
+            $suffix = $($s.Replace("x", $aoVH))
+            $eSuffix = $suffix
+            $suffix = " m$($mainFVH3)$($suffix)"
+            $q = "m$($mainFVH3)"
+        }
+        
+        Write-Host "V-$($Symbol)-$($no),$($ncModeN)$suffix,$m,Future Simple,Main Question,$MainF,,$y,$acak,$plural,$q,,,$eSuffix,,$Case"
+        #Id, Form, BasicForm, TenseName, TenseForm, root, negative, root_join, tense1, tense2, question_plural, question, question_join, question_tense, decl, question_past, case
+        $no++
+    }
 
     # IMPERATIVE MODE
 
@@ -878,7 +873,10 @@ imperative		anla	anlasın		anlayın	anlasınlar
     # past
     # present
     # future
+
+    # RZECZOWNIK ODCZASOWNIKOWY
 }
+
 
 Function GetLastLetter {
     param(
@@ -890,12 +888,13 @@ Function GetLastLetter {
     return $LastLetter
 }
 
+
 Function IsVowel {
     param(
         [string]$Char
     )
 
-    $vowels = "aeıioöuü"
+    $vowels = "aeıioöuüAEIİOÖUÜ"
 
     if ($vowels.Contains($Char)) {
         return $true
@@ -909,12 +908,13 @@ Function GetTextVowels {
         [string]$Text
     )
 
-    $vowels = "aeıioöuü"
+    $vowels = "aeıioöuüAEIİOÖUÜ"
 
     $textVowels = @()
     $textLetters = $Text.ToCharArray()
 
     foreach ($l in $textLetters) {
+        Write-Host "Letter: $l"
         if ($vowels.Contains($l)) {
             $textVowels += $l
         }
@@ -923,6 +923,7 @@ Function GetTextVowels {
     return $textVowels
 }
 
+<#
 Function GetLastLetter {
     param(
         [string]$Text,
@@ -935,6 +936,7 @@ Function GetLastLetter {
 
     if ($Last -eq 1) {
         $output = $textArr | Select -Last 1
+        $output
     } else {
         if ($textVowels.Length -ge $Last) {
             $output = $textArr[$textArr.Length-$Last]
@@ -943,6 +945,7 @@ Function GetLastLetter {
 
     return $output
 }
+#>
 
 Function GetLastVowel {
     param(
@@ -951,6 +954,9 @@ Function GetLastVowel {
     )
 
     $textVowels = GetTextVowels $Text
+
+    Write-Host $Text
+    Write-Host "Vowels: $textVowels"
 
     $output = $null
 
@@ -965,7 +971,8 @@ Function GetLastVowel {
     return $output
 }
 
-VerbFunction "Anla" "Anl" "Anlı" "ar"
+#VerbFunction "Anla" "Anl" "Anlı" "Anla" "ar"
+VerbFunction "Et" "Ed" "Edi" "Ed" "er"
 
 <#
 Function VocalHarmony0 {
